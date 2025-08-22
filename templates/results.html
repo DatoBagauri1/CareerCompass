@@ -1,0 +1,692 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if result_type == 'resume' %}Resume Analysis Results{% else %}Data Analysis Results{% endif %} - Career Insights Platform
+{% endblock %}
+
+{% block content %}
+{% if result_type == 'resume' %}
+<!-- Resume Analysis Results -->
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">📊 Resume Analysis Results</h1>
+        <p class="text-gray-600">Analysis completed on {{ analysis.analysis_time.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        {% if analysis.resume.language %}
+            <div class="mt-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-globe mr-2"></i>
+                    Detected Language: 
+                    {% if analysis.resume.language == 'en' %}🇺🇸 English
+                    {% elif analysis.resume.language == 'ru' %}🇷🇺 Russian
+                    {% elif analysis.resume.language == 'ka' %}🇬🇪 Georgian
+                    {% else %}{{ analysis.resume.language|upper }}{% endif %}
+                </span>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ATS Score Card -->
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">ATS Compatibility Score</h2>
+            <div class="relative w-32 h-32 mx-auto mb-4">
+                <canvas id="atsScoreChart"></canvas>
+            </div>
+            <p class="text-3xl font-bold text-primary-600">{{ analysis.ats_score }}%</p>
+            <p class="text-gray-600 mt-2">
+                {% if analysis.ats_score >= 80 %}
+                    Excellent! Your resume is highly ATS-compatible.
+                {% elif analysis.ats_score >= 60 %}
+                    Good score! Some improvements could help.
+                {% elif analysis.ats_score >= 40 %}
+                    Moderate score. Consider adding missing keywords.
+                {% else %}
+                    Low score. Your resume needs optimization for ATS systems.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Skills Analysis -->
+    <div class="grid lg:grid-cols-2 gap-8 mb-8">
+        <!-- Technical Skills -->
+        {% if skills.technical %}
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-cogs text-blue-600 mr-2"></i>
+                Technical Skills
+            </h3>
+            <div class="mb-4">
+                <canvas id="technicalSkillsChart"></canvas>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                {% for skill in skills.technical %}
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Soft Skills -->
+        {% if skills.soft %}
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-heart text-green-600 mr-2"></i>
+                Soft Skills
+            </h3>
+            <div class="mb-4">
+                <canvas id="softSkillsChart"></canvas>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                {% for skill in skills.soft %}
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Missing Keywords -->
+    {% if missing_keywords %}
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-exclamation-triangle text-orange-600 mr-2"></i>
+            Missing Keywords
+        </h3>
+        <p class="text-gray-600 mb-4">Consider adding these keywords to improve your ATS score:</p>
+        <div class="flex flex-wrap gap-2">
+            {% for keyword in missing_keywords %}
+            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">{{ keyword }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- LinkedIn Suggestions -->
+    {% if suggestions %}
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">
+            <i class="fab fa-linkedin text-blue-600 mr-2"></i>
+            LinkedIn Headline Suggestions
+        </h3>
+        <div class="space-y-3">
+            {% for suggestion in suggestions %}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p class="text-blue-900 font-medium">{{ suggestion }}</p>
+                <button onclick="copyToClipboard('{{ suggestion }}')" 
+                        class="text-blue-600 hover:text-blue-800 text-sm mt-2">
+                    <i class="fas fa-copy mr-1"></i>Copy
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="flex justify-center space-x-4">
+        <a href="{{ url_for('main.download_report', analysis_id=analysis.id) }}" 
+           class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
+            <i class="fas fa-download mr-2"></i>Download Report
+        </a>
+        <a href="{{ url_for('main.resume_analyzer') }}" 
+           class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
+            <i class="fas fa-plus mr-2"></i>Analyze Another Resume
+        </a>
+    </div>
+</div>
+
+{% else %}
+<!-- CSV Analysis Results -->
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Data Analysis Results</h1>
+        <p class="text-gray-600">Analysis of {{ csv_upload.original_filename }}</p>
+        <p class="text-sm text-gray-500">Uploaded on {{ csv_upload.upload_time.strftime('%B %d, %Y at %I:%M %p') }}</p>
+    </div>
+
+    <!-- Dataset Overview -->
+    <div class="grid md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-table text-3xl text-blue-600 mb-2"></i>
+            <div class="text-2xl font-bold text-gray-900">{{ csv_upload.row_count | number_format }}</div>
+            <div class="text-gray-600">Rows</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-columns text-3xl text-green-600 mb-2"></i>
+            <div class="text-2xl font-bold text-gray-900">{{ csv_upload.column_count }}</div>
+            <div class="text-gray-600">Columns</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-calculator text-3xl text-purple-600 mb-2"></i>
+            <div class="text-2xl font-bold text-gray-900">
+                {{ (columns_info.values() | selectattr('is_numeric') | list | length) }}
+            </div>
+            <div class="text-gray-600">Numeric</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-tags text-3xl text-orange-600 mb-2"></i>
+            <div class="text-2xl font-bold text-gray-900">
+                {{ (columns_info.values() | rejectattr('is_numeric') | list | length) }}
+            </div>
+            <div class="text-gray-600">Categorical</div>
+        </div>
+    </div>
+
+    <!-- Column Analysis -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Column Analysis</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Column</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Non-Null</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unique</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stats</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for column_name, info in columns_info.items() %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ column_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                         {% if info.is_numeric %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                {% if info.is_numeric %}Numeric{% else %}Categorical{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ info.non_null_count }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ info.unique_count }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if info.is_numeric and stats[column_name] %}
+                                Mean: {{ stats[column_name].mean }}<br>
+                                Min: {{ stats[column_name].min }}, Max: {{ stats[column_name].max }}
+                            {% elif not info.is_numeric and stats[column_name] and stats[column_name].most_common %}
+                                Most common: {{ stats[column_name].most_common }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-chart-bar text-blue-600 mr-2"></i>
+            Interactive Data Visualizations
+        </h3>
+        
+        <!-- Column Selection -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <label for="column-select" class="block text-sm font-medium text-gray-700 mb-3">
+                <i class="fas fa-columns mr-1"></i>
+                Select Column to Visualize:
+            </label>
+            <select id="column-select" class="block w-full md:w-1/2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                <option value="">Choose a column...</option>
+                {% for column_name, info in columns_info.items() %}
+                <option value="{{ column_name }}" data-type="{% if info.is_numeric %}numeric{% else %}categorical{% endif %}">
+                    {{ column_name }} ({% if info.is_numeric %}Numeric{% else %}Categorical{% endif %})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Chart Container -->
+        <div id="chart-container" class="hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4">
+                <h4 id="chart-title" class="text-lg font-semibold text-gray-800 mb-2"></h4>
+                <p id="chart-description" class="text-sm text-gray-600"></p>
+            </div>
+            <div class="relative" style="height: 400px;">
+                <canvas id="dataChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="chart-loading" class="hidden text-center py-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
+            </div>
+            <p class="text-gray-600 font-medium">Generating beautiful visualization...</p>
+            <p class="text-sm text-gray-500 mt-1">This may take a moment for large datasets</p>
+        </div>
+        
+        <!-- No Selection State -->
+        <div id="chart-placeholder" class="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                <i class="fas fa-chart-line text-2xl text-gray-400"></i>
+            </div>
+            <h4 class="text-lg font-medium text-gray-600 mb-2">Select a column to visualize</h4>
+            <p class="text-sm text-gray-500">Choose any column from the dropdown above to generate interactive charts</p>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-center space-x-4">
+        <a href="{{ url_for('main.data_explorer') }}" 
+           class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
+            <i class="fas fa-plus mr-2"></i>Analyze Another Dataset
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if result_type == 'resume' %}
+// Resume Results Scripts
+document.addEventListener('DOMContentLoaded', function() {
+    // ATS Score Doughnut Chart
+    const atsCtx = document.getElementById('atsScoreChart').getContext('2d');
+    const atsScore = {{ analysis.ats_score }};
+    
+    new Chart(atsCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [atsScore, 100 - atsScore],
+                backgroundColor: [
+                    atsScore >= 80 ? '#10b981' : atsScore >= 60 ? '#f59e0b' : '#ef4444',
+                    '#f3f4f6'
+                ],
+                borderWidth: 0,
+                borderRadius: 8,
+                hoverBackgroundColor: [
+                    atsScore >= 80 ? '#059669' : atsScore >= 60 ? '#d97706' : '#dc2626',
+                    '#e5e7eb'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataIndex === 0 ? `ATS Score: ${atsScore}%` : `Remaining: ${100 - atsScore}%`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+
+    {% if skills.technical %}
+    // Technical Skills Chart
+    const techCtx = document.getElementById('technicalSkillsChart').getContext('2d');
+    const techSkills = {{ skills.technical | tojson }};
+    
+    new Chart(techCtx, {
+        type: 'bar',
+        data: {
+            labels: techSkills.slice(0, 8),
+            datasets: [{
+                label: 'Technical Skills Found',
+                data: Array(Math.min(techSkills.length, 8)).fill(1),
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(147, 51, 234, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(249, 115, 22, 0.8)',
+                    'rgba(236, 72, 153, 0.8)',
+                    'rgba(14, 165, 233, 0.8)',
+                    'rgba(168, 85, 247, 0.8)',
+                    'rgba(34, 197, 94, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(147, 51, 234, 1)',
+                    'rgba(34, 197, 94, 1)',
+                    'rgba(249, 115, 22, 1)',
+                    'rgba(236, 72, 153, 1)',
+                    'rgba(14, 165, 233, 1)',
+                    'rgba(168, 85, 247, 1)',
+                    'rgba(34, 197, 94, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                y: {
+                    display: false
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        color: '#6B7280',
+                        font: {
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+    {% endif %}
+
+    {% if skills.soft %}
+    // Soft Skills Chart
+    const softCtx = document.getElementById('softSkillsChart').getContext('2d');
+    const softSkills = {{ skills.soft | tojson }};
+    
+    new Chart(softCtx, {
+        type: 'bar',
+        data: {
+            labels: softSkills.slice(0, 6),
+            datasets: [{
+                label: 'Soft Skills Found',
+                data: Array(Math.min(softSkills.length, 6)).fill(1),
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(99, 102, 241, 0.8)',
+                    'rgba(249, 115, 22, 0.8)',
+                    'rgba(236, 72, 153, 0.8)',
+                    'rgba(14, 165, 233, 0.8)',
+                    'rgba(168, 85, 247, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(34, 197, 94, 1)',
+                    'rgba(99, 102, 241, 1)',
+                    'rgba(249, 115, 22, 1)',
+                    'rgba(236, 72, 153, 1)',
+                    'rgba(14, 165, 233, 1)',
+                    'rgba(168, 85, 247, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                y: {
+                    display: false
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        color: '#6B7280',
+                        font: {
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+    {% endif %}
+});
+
+// Copy to clipboard function
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+        button.classList.add('text-green-600');
+        
+        setTimeout(function() {
+            button.innerHTML = originalText;
+            button.classList.remove('text-green-600');
+        }, 2000);
+    });
+}
+
+{% else %}
+// CSV Results Scripts
+document.addEventListener('DOMContentLoaded', function() {
+    const columnSelect = document.getElementById('column-select');
+    const chartContainer = document.getElementById('chart-container');
+    const chartLoading = document.getElementById('chart-loading');
+    const chartPlaceholder = document.getElementById('chart-placeholder');
+    const chartTitle = document.getElementById('chart-title');
+    const chartDescription = document.getElementById('chart-description');
+    const dataChart = document.getElementById('dataChart');
+    let currentChart = null;
+
+    // Define beautiful color palettes
+    const colorPalettes = {
+        blue: {
+            background: 'rgba(59, 130, 246, 0.7)',
+            border: 'rgba(59, 130, 246, 1)'
+        },
+        purple: {
+            background: 'rgba(147, 51, 234, 0.7)',
+            border: 'rgba(147, 51, 234, 1)'
+        },
+        green: {
+            background: 'rgba(34, 197, 94, 0.7)',
+            border: 'rgba(34, 197, 94, 1)'
+        },
+        orange: {
+            background: 'rgba(249, 115, 22, 0.7)',
+            border: 'rgba(249, 115, 22, 1)'
+        }
+    };
+
+    function getRandomColors(count) {
+        const colors = [];
+        const paletteKeys = Object.keys(colorPalettes);
+        for (let i = 0; i < count; i++) {
+            const palette = colorPalettes[paletteKeys[i % paletteKeys.length]];
+            colors.push({
+                background: palette.background,
+                border: palette.border
+            });
+        }
+        return colors;
+    }
+
+    columnSelect.addEventListener('change', function() {
+        const selectedColumn = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+        const columnType = selectedOption.getAttribute('data-type');
+        
+        // Hide placeholder
+        if (chartPlaceholder) chartPlaceholder.classList.add('hidden');
+        
+        if (!selectedColumn) {
+            chartContainer.classList.add('hidden');
+            if (chartPlaceholder) chartPlaceholder.classList.remove('hidden');
+            return;
+        }
+
+        // Show loading
+        chartLoading.classList.remove('hidden');
+        chartContainer.classList.add('hidden');
+
+        // Fetch chart data
+        fetch(`/api/chart-data/{{ csv_upload.id }}/${encodeURIComponent(selectedColumn)}`)
+            .then(response => response.json())
+            .then(data => {
+                chartLoading.classList.add('hidden');
+                
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    alert('Error generating chart: ' + data.error);
+                    if (chartPlaceholder) chartPlaceholder.classList.remove('hidden');
+                    return;
+                }
+
+                // Update chart header
+                if (chartTitle) chartTitle.textContent = data.title || `Analysis of ${selectedColumn}`;
+                if (chartDescription) {
+                    chartDescription.textContent = columnType === 'numeric' ? 
+                        'Distribution showing frequency of values across different ranges' :
+                        'Top values showing most frequent categories in your data';
+                }
+
+                // Destroy existing chart
+                if (currentChart) {
+                    currentChart.destroy();
+                }
+
+                // Generate colors based on data length
+                const colors = getRandomColors(data.data.length);
+                const backgroundColors = colors.map(c => c.background);
+                const borderColors = colors.map(c => c.border);
+
+                // Create new chart with enhanced styling
+                const ctx = dataChart.getContext('2d');
+                currentChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: columnType === 'numeric' ? 'Frequency' : 'Count',
+                            data: data.data,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    title: function(context) {
+                                        return columnType === 'numeric' ? 'Range: ' + context[0].label : 'Value: ' + context[0].label;
+                                    },
+                                    label: function(context) {
+                                        return `${columnType === 'numeric' ? 'Frequency' : 'Count'}: ${context.parsed.y.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 0,
+                                    color: '#6B7280',
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#6B7280',
+                                    font: {
+                                        size: 11
+                                    },
+                                    callback: function(value) {
+                                        return value.toLocaleString();
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(229, 231, 235, 0.5)'
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeInOutQuart'
+                        }
+                    }
+                });
+
+                chartContainer.classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error fetching chart data:', error);
+                chartLoading.classList.add('hidden');
+                if (chartPlaceholder) chartPlaceholder.classList.remove('hidden');
+                alert('Failed to load chart data. Please try again.');
+            });
+    });
+});
+{% endif %}
+</script>
+{% endblock %}

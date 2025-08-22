@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Career & Data Insights Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Background -->
+<div class="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 overflow-hidden">
+    <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <!-- Animated background elements -->
+        <div class="absolute top-10 left-10 w-20 h-20 bg-blue-400 rounded-full opacity-20 animate-pulse"></div>
+        <div class="absolute top-32 right-20 w-16 h-16 bg-purple-400 rounded-full opacity-30 animate-bounce"></div>
+        <div class="absolute bottom-20 left-1/4 w-12 h-12 bg-indigo-400 rounded-full opacity-25 animate-pulse"></div>
+        <div class="absolute bottom-32 right-1/3 w-14 h-14 bg-pink-400 rounded-full opacity-20 animate-bounce"></div>
+    </div>
+    
+    <div class="relative px-4 py-24 mx-auto max-w-7xl">
+        <div class="text-center text-white">
+            <!-- Logo/Icon -->
+            <div class="mb-8">
+                <div class="mx-auto w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <i class="fas fa-chart-line text-4xl text-white"></i>
+                </div>
+            </div>
+            
+            <h1 class="text-6xl font-extrabold mb-6 leading-tight">
+                Career & Data
+                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">
+                    Insights Platform
+                </span>
+            </h1>
+            
+            <p class="text-xl text-blue-100 mb-8 max-w-4xl mx-auto leading-relaxed">
+                🚀 Unlock your career potential with AI-powered resume analysis in 
+                <span class="font-semibold text-yellow-300">English, Russian, and Georgian</span> languages.
+                Explore your data with powerful visualization tools and get professional insights.
+            </p>
+            
+            <!-- Language Support Badge -->
+            <div class="mb-8 flex justify-center">
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-6 py-2 flex items-center space-x-4">
+                    <span class="text-sm font-medium text-white">Supported Languages:</span>
+                    <span class="text-xs bg-blue-500 px-2 py-1 rounded text-white">🇺🇸 EN</span>
+                    <span class="text-xs bg-red-500 px-2 py-1 rounded text-white">🇷🇺 RU</span>
+                    <span class="text-xs bg-red-600 px-2 py-1 rounded text-white">🇬🇪 KA</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.resume_analyzer') }}" 
+                       class="group bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-xl">
+                        <i class="fas fa-file-alt mr-3 group-hover:animate-bounce"></i>Analyze Resume
+                        <span class="block text-sm opacity-90">Multi-language AI Analysis</span>
+                    </a>
+                    <a href="{{ url_for('main.data_explorer') }}" 
+                       class="group bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-xl">
+                        <i class="fas fa-database mr-3 group-hover:animate-bounce"></i>Explore Data
+                        <span class="block text-sm opacity-90">Interactive Visualizations</span>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.register') }}" 
+                       class="group bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-xl">
+                        <i class="fas fa-user-plus mr-3 group-hover:animate-bounce"></i>Get Started Free
+                        <span class="block text-sm opacity-90">Create your account</span>
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" 
+                       class="group bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 border border-white border-opacity-30">
+                        <i class="fas fa-sign-in-alt mr-3"></i>Sign In
+                        <span class="block text-sm opacity-90">Access your account</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 py-16">
+
+    <!-- Features Grid -->
+    <div class="grid md:grid-cols-2 gap-8 mb-16">
+        <!-- Resume Analyzer Card -->
+        <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition duration-300">
+            <div class="text-primary-600 text-5xl mb-4">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">AI-Powered Resume Analyzer</h3>
+            <ul class="text-left text-gray-600 space-y-2 mb-6">
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Upload PDF/DOCX resumes
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    ATS Score calculation with keyword matching
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Skills extraction and visualization
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    LinkedIn headline suggestions
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Downloadable analysis reports
+                </li>
+            </ul>
+            <a href="{{ url_for('main.resume_analyzer') }}" 
+               class="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                Get Started
+            </a>
+        </div>
+
+        <!-- Data Explorer Card -->
+        <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition duration-300">
+            <div class="text-green-600 text-5xl mb-4">
+                <i class="fas fa-database"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">Interactive Data Explorer</h3>
+            <ul class="text-left text-gray-600 space-y-2 mb-6">
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Upload and analyze CSV files
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Automatic descriptive statistics
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Interactive charts and visualizations
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Data insights and trends
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check text-green-500 mr-2"></i>
+                    Export capabilities
+                </li>
+            </ul>
+            <a href="{{ url_for('main.data_explorer') }}" 
+               class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                Explore Data
+            </a>
+        </div>
+    </div>
+
+    <!-- Language Support Section -->
+    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-8 mb-16">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">🌍 Multi-Language Support</h2>
+            <p class="text-lg text-gray-600">Our AI understands resumes in multiple languages for global career insights</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition duration-300">
+                <div class="text-6xl mb-4">🇺🇸</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">English</h3>
+                <p class="text-gray-600">Full support for English resumes with comprehensive ATS analysis and skills extraction.</p>
+            </div>
+            <div class="text-center bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition duration-300">
+                <div class="text-6xl mb-4">🇷🇺</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Русский</h3>
+                <p class="text-gray-600">Complete Russian language support with localized keywords and skills recognition.</p>
+            </div>
+            <div class="text-center bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition duration-300">
+                <div class="text-6xl mb-4">🇬🇪</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">ქართული</h3>
+                <p class="text-gray-600">Georgian language analysis with cultural context and local market insights.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works Section -->
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">How It Works</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center group">
+                <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-upload text-blue-600 text-2xl"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900 mb-2">1. Upload Your File</h4>
+                <p class="text-gray-600">Drag and drop your resume (PDF/DOCX) or data file (CSV) using our secure interface. Supports multiple languages automatically.</p>
+            </div>
+            <div class="text-center group">
+                <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-brain text-green-600 text-2xl"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900 mb-2">2. AI Analysis</h4>
+                <p class="text-gray-600">Our advanced AI engines analyze your content, detect language, extract insights, and generate comprehensive reports.</p>
+            </div>
+            <div class="text-center group">
+                <div class="bg-gradient-to-br from-purple-100 to-purple-200 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900 mb-2">3. Get Insights</h4>
+                <p class="text-gray-600">Receive detailed visualizations, ATS scores, skill analysis, and actionable recommendations to boost your career.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Showcase -->
+    <div class="bg-gradient-to-r from-gray-900 to-blue-900 rounded-xl shadow-2xl p-8 mb-16 text-white">
+        <h2 class="text-3xl font-bold mb-8 text-center">✨ Platform Features</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="text-center group">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 mb-4 group-hover:scale-105 transition duration-300">
+                    <i class="fas fa-robot text-3xl"></i>
+                </div>
+                <div class="text-xl font-bold">AI-Powered</div>
+                <div class="text-blue-200">Smart Resume Analysis</div>
+            </div>
+            <div class="text-center group">
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 mb-4 group-hover:scale-105 transition duration-300">
+                    <i class="fas fa-bolt text-3xl"></i>
+                </div>
+                <div class="text-xl font-bold">Real-time</div>
+                <div class="text-green-200">Instant Processing</div>
+            </div>
+            <div class="text-center group">
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 mb-4 group-hover:scale-105 transition duration-300">
+                    <i class="fas fa-chart-pie text-3xl"></i>
+                </div>
+                <div class="text-xl font-bold">Interactive</div>
+                <div class="text-purple-200">Dynamic Charts</div>
+            </div>
+            <div class="text-center group">
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 mb-4 group-hover:scale-105 transition duration-300">
+                    <i class="fas fa-medal text-3xl"></i>
+                </div>
+                <div class="text-xl font-bold">Professional</div>
+                <div class="text-orange-200">Quality Reports</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Call to Action -->
+    {% if not current_user.is_authenticated %}
+    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-xl p-8 text-white text-center">
+        <h2 class="text-3xl font-bold mb-4">🚀 Ready to Boost Your Career?</h2>
+        <p class="text-xl mb-6 text-indigo-100">Join thousands of professionals who have improved their resumes and data analysis skills</p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="{{ url_for('auth.register') }}" 
+               class="bg-white text-indigo-600 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-200 transform hover:scale-105">
+                <i class="fas fa-rocket mr-2"></i>Start Free Now
+            </a>
+            <a href="{{ url_for('main.resume_analyzer') }}" 
+               class="border-2 border-white text-white font-bold py-3 px-8 rounded-lg hover:bg-white hover:text-indigo-600 transition duration-200">
+                <i class="fas fa-eye mr-2"></i>Try Demo
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

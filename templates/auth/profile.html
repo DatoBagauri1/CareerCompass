@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Career Insights Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Profile Header -->
+    <div class="bg-gradient-to-r from-primary-600 to-blue-700 rounded-xl shadow-lg p-8 mb-8 text-white">
+        <div class="flex items-center">
+            <div class="bg-white rounded-full p-4 mr-6">
+                <i class="fas fa-user text-primary-600 text-3xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold mb-2">{{ current_user.get_full_name() }}</h1>
+                <p class="text-blue-100 mb-1">@{{ current_user.username }}</p>
+                <p class="text-blue-200 text-sm">{{ current_user.email }}</p>
+                <p class="text-blue-200 text-sm">Member since {{ current_user.created_at.strftime('%B %Y') }}</p>
+            </div>
+            <div class="ml-auto">
+                <a href="{{ url_for('auth.edit_profile') }}" 
+                   class="bg-white text-primary-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition duration-200">
+                    <i class="fas fa-edit mr-2"></i>Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Statistics -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Activity</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-file-alt text-primary-600 mr-3"></i>
+                            <span class="text-sm text-gray-600">Resumes Analyzed</span>
+                        </div>
+                        <span class="font-semibold text-gray-900">{{ current_user.resumes|length }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-database text-green-600 mr-3"></i>
+                            <span class="text-sm text-gray-600">Datasets Explored</span>
+                        </div>
+                        <span class="font-semibold text-gray-900">{{ current_user.csv_uploads|length }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar text-purple-600 mr-3"></i>
+                            <span class="text-sm text-gray-600">Days Active</span>
+                        </div>
+                        <span class="font-semibold text-gray-900">{{ (current_user.created_at - current_user.created_at).days + 1 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{{ url_for('main.resume_analyzer') }}" 
+                       class="block w-full bg-primary-50 hover:bg-primary-100 text-primary-700 text-center py-3 px-4 rounded-lg transition duration-200">
+                        <i class="fas fa-file-alt mr-2"></i>Analyze Resume
+                    </a>
+                    <a href="{{ url_for('main.data_explorer') }}" 
+                       class="block w-full bg-green-50 hover:bg-green-100 text-green-700 text-center py-3 px-4 rounded-lg transition duration-200">
+                        <i class="fas fa-database mr-2"></i>Explore Data
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" 
+                       class="block w-full bg-red-50 hover:bg-red-100 text-red-700 text-center py-3 px-4 rounded-lg transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Resume Analyses</h3>
+                {% if current_user.resumes %}
+                    <div class="space-y-4">
+                        {% for resume in current_user.resumes[:5] %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-alt text-primary-600 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ resume.original_filename }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            {{ resume.upload_time.strftime('%B %d, %Y at %I:%M %p') }}
+                                            {% if resume.language %}
+                                                • {{ resume.language|upper }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                {% if resume.analyses %}
+                                    <div class="text-right">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                     {% if resume.analyses[0].ats_score >= 80 %}bg-green-100 text-green-800
+                                                     {% elif resume.analyses[0].ats_score >= 60 %}bg-yellow-100 text-yellow-800
+                                                     {% else %}bg-red-100 text-red-800{% endif %}">
+                                            {{ resume.analyses[0].ats_score }}% ATS
+                                        </span>
+                                        <a href="{{ url_for('main.resume_results', analysis_id=resume.analyses[0].id) }}" 
+                                           class="ml-2 text-primary-600 hover:text-primary-500 text-sm">
+                                            View Results
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-file-alt text-gray-400 text-4xl mb-4"></i>
+                        <p class="text-gray-500 mb-4">No resume analyses yet</p>
+                        <a href="{{ url_for('main.resume_analyzer') }}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                            <i class="fas fa-plus mr-2"></i>Analyze Your First Resume
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Data Explorations</h3>
+                {% if current_user.csv_uploads %}
+                    <div class="space-y-4">
+                        {% for csv in current_user.csv_uploads[:5] %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-database text-green-600 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ csv.original_filename }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            {{ csv.upload_time.strftime('%B %d, %Y at %I:%M %p') }}
+                                            • {{ csv.row_count | number_format }} rows, {{ csv.column_count }} columns
+                                        </p>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('main.csv_results', upload_id=csv.id) }}" 
+                                   class="text-green-600 hover:text-green-500 text-sm">
+                                    View Analysis
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-database text-gray-400 text-4xl mb-4"></i>
+                        <p class="text-gray-500 mb-4">No data explorations yet</p>
+                        <a href="{{ url_for('main.data_explorer') }}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                            <i class="fas fa-plus mr-2"></i>Explore Your First Dataset
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

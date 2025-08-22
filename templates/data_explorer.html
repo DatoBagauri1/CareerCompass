@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Data Explorer - Career Insights Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-database text-green-600 mr-3"></i>
+            Interactive Data Explorer
+        </h1>
+        <p class="text-lg text-gray-600">
+            Upload your CSV file and get instant statistical analysis and interactive visualizations
+        </p>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <form action="{{ url_for('main.upload_csv') }}" method="post" enctype="multipart/form-data" class="space-y-6">
+            <!-- File Upload -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-file-csv mr-1"></i>
+                    Upload CSV File
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-400 transition duration-200"
+                     id="drop-area">
+                    <div class="space-y-1 text-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="csv_file" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500">
+                                <span>Upload a file</span>
+                                <input id="csv_file" name="csv_file" type="file" accept=".csv" class="sr-only" required>
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">CSV files up to 16MB</p>
+                        <div id="file-name" class="text-sm text-green-600 font-medium hidden"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-center">
+                <button type="submit" 
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        id="submit-btn">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    Analyze Data
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-calculator text-3xl text-green-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">Statistics</h3>
+            <p class="text-sm text-gray-600">Mean, median, std deviation, and more</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-chart-line text-3xl text-blue-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">Visualizations</h3>
+            <p class="text-sm text-gray-600">Auto-generated charts based on data types</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-search-plus text-3xl text-purple-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">Insights</h3>
+            <p class="text-sm text-gray-600">Discover patterns and trends in your data</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-download text-3xl text-orange-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">Export</h3>
+            <p class="text-sm text-gray-600">Download charts and analysis summaries</p>
+        </div>
+    </div>
+
+    <!-- Sample Data Info -->
+    <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-green-900 mb-3">
+            <i class="fas fa-info-circle mr-2"></i>
+            What You'll Get
+        </h3>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <h4 class="font-medium text-green-800 mb-2">Automatic Analysis</h4>
+                <ul class="space-y-1 text-green-700 text-sm">
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-green-600 mr-2"></i>
+                        Descriptive statistics for numeric columns
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-green-600 mr-2"></i>
+                        Data type detection and validation
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-green-600 mr-2"></i>
+                        Missing value analysis
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-green-600 mr-2"></i>
+                        Outlier detection
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-medium text-blue-800 mb-2">Interactive Charts</h4>
+                <ul class="space-y-1 text-blue-700 text-sm">
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-blue-600 mr-2"></i>
+                        Histograms for numeric data
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-blue-600 mr-2"></i>
+                        Bar charts for categorical data
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-blue-600 mr-2"></i>
+                        Correlation analysis
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check text-blue-600 mr-2"></i>
+                        Summary dashboard
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('csv_file');
+    const fileName = document.getElementById('file-name');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop area when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    // Handle file input change
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            showFileName(this.files[0].name);
+        }
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight(e) {
+        dropArea.classList.add('border-green-500', 'bg-green-50');
+    }
+
+    function unhighlight(e) {
+        dropArea.classList.remove('border-green-500', 'bg-green-50');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileName(files[0].name);
+        }
+    }
+
+    function showFileName(name) {
+        fileName.textContent = `Selected: ${name}`;
+        fileName.classList.remove('hidden');
+    }
+
+    // Show loading state on form submit
+    document.querySelector('form').addEventListener('submit', function() {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

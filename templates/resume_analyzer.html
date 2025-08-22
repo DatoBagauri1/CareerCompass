@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Analyzer - Career Insights Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-file-alt text-primary-600 mr-3"></i>
+            AI-Powered Resume Analyzer
+        </h1>
+        <p class="text-lg text-gray-600 mb-4">
+            Upload your resume and get instant ATS score, skills analysis, and career insights
+        </p>
+        <!-- Language Support Badge -->
+        <div class="flex justify-center mb-6">
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-full px-6 py-2 flex items-center space-x-4">
+                <span class="text-sm font-medium text-gray-700">🌍 Supports:</span>
+                <span class="text-xs bg-blue-500 px-2 py-1 rounded text-white font-medium">🇺🇸 English</span>
+                <span class="text-xs bg-red-500 px-2 py-1 rounded text-white font-medium">🇷🇺 Русский</span>
+                <span class="text-xs bg-red-600 px-2 py-1 rounded text-white font-medium">🇬🇪 ქართული</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <form action="{{ url_for('main.upload_resume') }}" method="post" enctype="multipart/form-data" class="space-y-6">
+            <!-- File Upload -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-file-upload mr-1"></i>
+                    Upload Resume (PDF or DOCX)
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary-400 transition duration-200"
+                     id="drop-area">
+                    <div class="space-y-1 text-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="resume_file" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                <span>Upload a file</span>
+                                <input id="resume_file" name="resume_file" type="file" accept=".pdf,.docx" class="sr-only" required>
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">PDF or DOCX up to 16MB</p>
+                        <div id="file-name" class="text-sm text-green-600 font-medium hidden"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Description (Optional) -->
+            <div>
+                <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-briefcase mr-1"></i>
+                    Job Description (Optional)
+                </label>
+                <textarea id="job_description" name="job_description" rows="4" 
+                         class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                         placeholder="Paste the job description here to get better ATS score matching..."></textarea>
+                <p class="mt-1 text-sm text-gray-500">
+                    Adding a job description will improve ATS score accuracy and keyword matching
+                </p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-center">
+                <button type="submit" 
+                        class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        id="submit-btn">
+                    <i class="fas fa-search mr-2"></i>
+                    Analyze Resume
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-percentage text-3xl text-primary-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">ATS Score</h3>
+            <p class="text-sm text-gray-600">Get your Application Tracking System compatibility score</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-cogs text-3xl text-green-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">Skills Extraction</h3>
+            <p class="text-sm text-gray-600">Identify technical and soft skills from your resume</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fas fa-search text-3xl text-purple-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">Keyword Analysis</h3>
+            <p class="text-sm text-gray-600">Find missing keywords to improve your match</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 text-center">
+            <i class="fab fa-linkedin text-3xl text-blue-600 mb-3"></i>
+            <h3 class="font-semibold text-gray-900">Career Insights</h3>
+            <p class="text-sm text-gray-600">Get LinkedIn headline suggestions and tips</p>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-blue-900 mb-3">
+            <i class="fas fa-info-circle mr-2"></i>
+            How to Get the Best Results
+        </h3>
+        <ul class="space-y-2 text-blue-800">
+            <li class="flex items-start">
+                <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                <span>Upload a clean, well-formatted resume in PDF or DOCX format</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                <span>Include a job description for more accurate ATS scoring</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                <span>Ensure your resume contains readable text (not just images)</span>
+            </li>
+            <li class="flex items-start">
+                <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                <span>Review the analysis and download your detailed report</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('resume_file');
+    const fileName = document.getElementById('file-name');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop area when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    // Handle file input change
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            showFileName(this.files[0].name);
+        }
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight(e) {
+        dropArea.classList.add('border-primary-500', 'bg-primary-50');
+    }
+
+    function unhighlight(e) {
+        dropArea.classList.remove('border-primary-500', 'bg-primary-50');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileName(files[0].name);
+        }
+    }
+
+    function showFileName(name) {
+        fileName.textContent = `Selected: ${name}`;
+        fileName.classList.remove('hidden');
+    }
+
+    // Show loading state on form submit
+    document.querySelector('form').addEventListener('submit', function() {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}
